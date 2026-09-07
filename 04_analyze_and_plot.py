@@ -97,7 +97,22 @@ def main():
         print("Nothing to summarise.")
         sys.exit(1)
 
-    summary_df = pd.DataFrame(summary).sort_values("partial_r_ctrl_sex")
+    summary_df = pd.DataFrame(summary)
+
+    def fdr_bh(pvals):
+        pvals = np.asarray(pvals)
+        n = len(pvals)
+        order = np.argsort(pvals)
+        ranked = pvals[order] * n / (np.arange(n) + 1)
+        ranked = np.minimum.accumulate(ranked[::-1])[::-1]
+        adjusted = np.empty(n)
+        adjusted[order] = np.clip(ranked, 0, 1)
+        return adjusted
+
+    summary_df["pearson_p_fdr"] = fdr_bh(summary_df["pearson_p"].to_numpy())
+    summary_df["partial_p_fdr"] = fdr_bh(summary_df["partial_p"].to_numpy())
+    summary_df = summary_df.sort_values("partial_r_ctrl_sex")
+
     summary_df.to_csv(
         os.path.join(RESULTS_DIR, "age_suv_correlations.csv"), index=False
     )
