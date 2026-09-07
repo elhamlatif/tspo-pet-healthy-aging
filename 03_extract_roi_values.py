@@ -49,9 +49,9 @@ def load_atlases():
     cort = fetch_atlas_harvard_oxford("cort-maxprob-thr25-2mm")
     sub = fetch_atlas_harvard_oxford("sub-maxprob-thr25-2mm")
     return (
-        nib.load(cort.maps),
+        cort.maps,
         list(cort.labels),
-        nib.load(sub.maps),
+        sub.maps,
         list(sub.labels),
     )
 
